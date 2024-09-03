@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v2.5
+    command:
+      - "--api.insecure=true" # Traefik dashboard, can be removed in production
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080" # Traefik dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - web
+
+  my_service:
+    image: nginx:alpine
+    volumes:
+      - ./my_service:/usr/share/nginx/html:ro # Serve static files from this directory
+    labels:
+      - "traefik.http.routers.my_service.rule=Host(`my.recrut.test`)"
+      - "traefik.http.services.my_service.loadbalancer.server.port=80"
+    networks:
+      - web
+
+  admin_service:
+    image: nginx:alpine
+    volumes:
+      - ./admin_service:/usr/share/nginx/html:ro # Serve static files from this directory
+    labels:
+      - "traefik.http.routers.admin_service.rule=Host(`admin.recrut.test`)"
+      - "traefik.http.services.admin_service.loadbalancer.server.port=80"
+    networks:
+      - web
+
+networks:
+  web:
+    external:
+      name: traefik
