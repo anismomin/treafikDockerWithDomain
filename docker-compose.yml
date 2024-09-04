@@ -35,7 +35,24 @@ services:
     networks:
       - web
 
+# it will use name "web" but use bridge as driver
 networks:
   web:
-    external:
-      name: traefik
+    driver: bridge
+
+# use default bridge this way you dont need to assign network to each service
+# networks:
+#   default:
+#     driver: bridge
+
+# it will use name "traefik" but use bridge as driver
+# networks:
+#   web:
+#     name: traefik
+#     driver: bridge
+
+# with this you need to create a network using this command "docker network create traefik"
+# networks:
+#   web:
+#     external:
+#       name: traefik
